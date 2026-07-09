@@ -61,6 +61,8 @@ export default function Home() {
     reset();
   };
 
+  
+
   const canAnalyze = mode === 'single' ? !!file1 : !!(file1 && file2);
 
   return (

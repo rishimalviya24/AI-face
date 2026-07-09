@@ -24,6 +24,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { formatNumber, formatDate } from '@/lib/utils';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -64,6 +69,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [previewImages, setPreviewImages] = useState<{ url: string }[] | null>(null);
 
   const fetchStats = useCallback(async (token: string) => {
     setIsLoading(true);
@@ -409,13 +415,18 @@ export default function AdminPage() {
                       animate={{ opacity: 1 }}
                       className="flex items-center gap-4 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
                     >
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewImages(item.images)}
+                        className="relative w-16 h-16 rounded-lg overflow-hidden shrink-0 cursor-zoom-in group focus:outline-none focus:ring-2 focus:ring-ring"
+                        aria-label="View larger image"
+                      >
                         <img
                           src={item.images[0]?.url}
                           alt=""
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
                         />
-                      </div>
+                      </button>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <Badge variant={item.analysisType === 'single' ? 'default' : 'secondary'}>
@@ -449,6 +460,26 @@ export default function AdminPage() {
             </Card>
           </div>
         ) : null}
+
+        <Dialog open={!!previewImages} onOpenChange={(open) => !open && setPreviewImages(null)}>
+          <DialogContent className="max-w-3xl w-[95vw] p-2 sm:p-4">
+            <DialogTitle className="sr-only">Image preview</DialogTitle>
+            <div
+              className={`grid gap-2 ${
+                previewImages && previewImages.length > 1 ? 'grid-cols-2' : 'grid-cols-1'
+              }`}
+            >
+              {previewImages?.map((img, i) => (
+                <img
+                  key={i}
+                  src={img.url}
+                  alt=""
+                  className="w-full max-h-[80vh] object-contain rounded-lg bg-black/5"
+                />
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </main>
   );
